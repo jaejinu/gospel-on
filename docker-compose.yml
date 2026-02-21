@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: gospel-on-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gospel
+      POSTGRES_PASSWORD: gospel1234
+      POSTGRES_DB: gospelondb
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

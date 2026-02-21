@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #1e3a5f;
+  --color-primary-light: #2c5282;
+  --color-primary-dark: #153050;
+  --color-accent: #d4a843;
+  --color-accent-light: #e0be6a;
+  --color-background: #ffffff;
+  --color-foreground: #1a1a1a;
+  --color-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-warm-bg: #faf8f5;
+  --color-admin-bg: #faf7f2;
+  --color-admin-bg-light: #fdf9f4;
+  --color-admin-sidebar: #2d2a26;
+  --color-admin-sidebar-light: #3d3933;
+  --color-admin-sidebar-border: #423e37;
+  --color-admin-card: #ffffff;
+  --color-admin-card-border: #e8e4de;
+  --color-admin-accent: #c9a84c;
+  --color-admin-accent-light: #d4b85a;
+  --color-admin-accent-dark: #b8963a;
+  --color-admin-text: #2d2a26;
+  --color-admin-text-muted: #8b8578;
+  --color-admin-table-header: #f5f1eb;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* 무한 롤링 갤러리 */
+@keyframes rolling {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(var(--rolling-distance));
+  }
+}
+
+.rolling-track {
+  animation: rolling var(--rolling-duration) linear infinite;
+}
+
+/* 스크롤바 스타일 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* 인쇄 스타일 */
+@media print {
+  header, footer, nav, [data-print-hidden] {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+
+  [data-print-block] {
+    display: block !important;
+  }
+
+  a {
+    text-decoration: none !important;
+    color: black !important;
+  }
+}

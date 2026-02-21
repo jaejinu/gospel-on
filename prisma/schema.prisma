@@ -1,0 +1,292 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 관리자 계정
+model Admin {
+  id        String   @id @default(cuid())
+  loginId   String   @unique // 로그인 아이디
+  email     String?
+  password  String
+  name      String
+  role      String   @default("admin") // admin, superadmin
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+// 교회 정보 (관리자용 교회 DB)
+model Church {
+  id            String   @id @default(cuid())
+  name          String
+  denomination  String?  // 교단
+  pastorName    String?  // 담임목사
+  contactName   String   // 담당자 이름
+  contactPhone  String   // 담당자 연락처
+  contactEmail  String?  // 담당자 이메일
+  address       String?  // 주소
+  memberCount   Int?     // 교인 수
+  notes         String?  // 비고
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("churches")
+}
+
+// 수련회 일정
+model Schedule {
+  id               String        @id @default(cuid())
+  title            String
+  location         String
+  startDate        DateTime
+  endDate          DateTime
+  capacity         Int           // 정원
+  description      String?
+  status           String        @default("upcoming") // upcoming, open, closed, completed
+  emergencyContact String?       // 비상 연락처
+  insuranceInfo    String?       // 보험 정보
+  preparationList  String?       @db.Text // 준비물 체크리스트 (줄바꿈 구분)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  reservations     Reservation[]
+  programs         ScheduleProgram[]
+  participants     Participant[]
+  teams            Team[]
+  feedbacks        Feedback[]
+
+  @@map("schedules")
+}
+
+// 예약 (개인 단위)
+model Reservation {
+  id                 String   @id @default(cuid())
+  scheduleId         String
+  name               String   // 신청자 이름
+  phone              String   // 연락처
+  email              String?  // 이메일
+  affiliation        String?  // 소속 (교회/단체명)
+  participants       Int      @default(1) // 참가 인원 (본인 포함)
+  requestMessage     String?  // 요청사항
+  status             String   @default("pending") // pending, confirmed, cancelled
+  participantCreated Boolean  @default(false) // 참가자 자동 생성 여부
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  schedule           Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@map("reservations")
+}
+
+// 후원
+model Donation {
+  id        String   @id @default(cuid())
+  donor     String   // 후원자명
+  amount    Int      // 금액
+  method    String   // 계좌이체, 현금 등
+  purpose   String?  // 용도
+  memo      String?
+  donatedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("donations")
+}
+
+// 갤러리 카테고리 (년도 + 반기)
+model GalleryCategory {
+  id           String         @id @default(cuid())
+  year         Int
+  half         String         // "FIRST" | "SECOND"
+  thumbnailUrl String?        // 카테고리 썸네일 이미지 URL
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  images       GalleryImage[]
+
+  @@unique([year, half])
+  @@map("gallery_categories")
+}
+
+// 갤러리 이미지
+model GalleryImage {
+  id         String          @id @default(cuid())
+  categoryId String
+  url        String
+  caption    String?
+  sortOrder  Int             @default(0)
+  likeCount  Int             @default(0) // 좋아요 수
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  category   GalleryCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  likes      GalleryLike[]
+
+  @@map("gallery_images")
+}
+
+// 갤러리 좋아요
+model GalleryLike {
+  id         String       @id @default(cuid())
+  imageId    String
+  visitorId  String       // 브라우저 fingerprint 또는 IP 기반
+  createdAt  DateTime     @default(now())
+  image      GalleryImage @relation(fields: [imageId], references: [id], onDelete: Cascade)
+
+  @@unique([imageId, visitorId])
+  @@map("gallery_likes")
+}
+
+// 수련회 프로그램 (시간표)
+model ScheduleProgram {
+  id          String   @id @default(cuid())
+  scheduleId  String
+  date        DateTime
+  startTime   String   // "HH:mm" 형식
+  endTime     String   // "HH:mm" 형식
+  title       String
+  description String?
+  speaker     String?
+  materials   String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  schedule    Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@map("schedule_programs")
+}
+
+// 참가자
+model Participant {
+  id          String   @id @default(cuid())
+  scheduleId  String
+  name        String
+  age         Int?
+  grade       String?
+  gender      String?
+  church      String?
+  phone       String?
+  parentPhone String?
+  notes       String?
+  teamId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  schedule    Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  team        Team?    @relation("TeamMembers", fields: [teamId], references: [id], onDelete: SetNull)
+  leadingTeam Team?    @relation("TeamLeader")
+
+  @@map("participants")
+}
+
+// 조 편성
+model Team {
+  id         String        @id @default(cuid())
+  scheduleId String
+  name       String
+  leaderId   String?       @unique
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  schedule   Schedule      @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  leader     Participant?  @relation("TeamLeader", fields: [leaderId], references: [id], onDelete: SetNull)
+  members    Participant[] @relation("TeamMembers")
+
+  @@map("teams")
+}
+
+// 피드백
+model Feedback {
+  id              String   @id @default(cuid())
+  scheduleId      String
+  participantName String
+  content         String
+  rating          Int      // 1-5
+  isPublic        Boolean  @default(false)
+  type            String   @default("admin") // "admin" | "participant"
+  password        String?  // 참가자 작성 시 수정/삭제용 비밀번호
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  schedule        Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@map("feedbacks")
+}
+
+// 사이트 설정
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  type  String @default("text") // text, image, json
+
+  @@map("site_settings")
+}
+
+// 공지사항
+model Notice {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  isPinned  Boolean  @default(false)
+  isPublic  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notices")
+}
+
+// 활동 로그 (감사 추적)
+model AuditLog {
+  id        String   @id @default(cuid())
+  adminId   String?  // 관리자 ID (없으면 시스템)
+  adminName String?  // 관리자 이름
+  action    String   // create, update, delete, status_change 등
+  target    String   // reservation, schedule, participant 등
+  targetId  String?  // 대상 ID
+  detail    String?  @db.Text // 변경 상세 내용
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+// 상태 변경 이력 (예약/참가자 타임라인)
+model StatusHistory {
+  id         String   @id @default(cuid())
+  targetType String   // reservation, participant
+  targetId   String
+  fromStatus String?
+  toStatus   String
+  changedBy  String?  // 관리자 이름
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@map("status_histories")
+}
+
+// 교사 접근 토큰
+model TeacherToken {
+  id         String    @id @default(cuid())
+  token      String    @unique
+  scheduleId String
+  teamId     String?   // 특정 조만 볼 수 있는 경우
+  label      String?   // "1조 교사용" 등
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+
+  @@map("teacher_tokens")
+}
+
+// 알림 로그
+model Notification {
+  id             String    @id @default(cuid())
+  type           String    // reservation_confirmed, reservation_cancelled 등
+  recipientEmail String?
+  recipientPhone String?
+  subject        String
+  content        String    @db.Text
+  status         String    @default("pending") // pending, sent, failed
+  sentAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@map("notifications")
+}
