@@ -276,6 +276,63 @@ model TeacherToken {
   @@map("teacher_tokens")
 }
 
+// 설문조사
+model Survey {
+  id          String           @id @default(cuid())
+  title       String
+  description String?          @db.Text
+  status      String           @default("draft") // draft, active, closed
+  isPublic    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  questions   SurveyQuestion[]
+  responses   SurveyResponse[]
+
+  @@map("surveys")
+}
+
+// 설문 질문
+model SurveyQuestion {
+  id          String         @id @default(cuid())
+  surveyId    String
+  label       String
+  type        String         // text, textarea, radio
+  options     String?        @db.Text // JSON 배열 (radio용)
+  isRequired  Boolean        @default(true)
+  sortOrder   Int            @default(0)
+  placeholder String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  survey      Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers     SurveyAnswer[]
+
+  @@map("survey_questions")
+}
+
+// 설문 응답 (한 사람의 전체 응답)
+model SurveyResponse {
+  id        String         @id @default(cuid())
+  surveyId  String
+  createdAt DateTime       @default(now())
+  survey    Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers   SurveyAnswer[]
+
+  @@map("survey_responses")
+}
+
+// 설문 개별 답변
+model SurveyAnswer {
+  id         String         @id @default(cuid())
+  responseId String
+  questionId String
+  value      String         @db.Text
+  createdAt  DateTime       @default(now())
+  response   SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question   SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("survey_answers")
+}
+
 // 알림 로그
 model Notification {
   id             String    @id @default(cuid())

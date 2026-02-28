@@ -188,6 +188,13 @@ export const publicFeedbackSchema = z.object({
 
 export type PublicFeedbackFormData = z.infer<typeof publicFeedbackSchema>;
 
+// 설문 응답 스키마 (공개)
+export const surveyResponseSchema = z.object({
+  answers: z.record(z.string(), z.string()),
+});
+
+export type SurveyResponseFormData = z.infer<typeof surveyResponseSchema>;
+
 // 예약 조회 스키마 (비회원)
 export const reservationLookupSchema = z.object({
   name: z.string().min(1, "이름을 입력해주세요"),

@@ -147,6 +147,59 @@ async function main() {
     }
   }
 
+  // 겨울캠프 설문조사
+  const survey = await prisma.survey.upsert({
+    where: { id: "winter-camp-survey-2026" },
+    update: {},
+    create: {
+      id: "winter-camp-survey-2026",
+      title: "2026 겨울캠프(복음온) 설문조사",
+      description: "겨울캠프에 참여해주셔서 감사합니다! 더 나은 캠프를 위해 의견을 들려주세요.",
+      status: "active",
+      isPublic: true,
+    },
+  });
+
+  const surveyQuestions = [
+    { label: "이름", type: "text", isRequired: true, sortOrder: 0 },
+    { label: "연락처", type: "text", isRequired: true, sortOrder: 1 },
+    { label: "교회명", type: "text", isRequired: true, sortOrder: 2 },
+    { label: "겨울캠프(복음온)에 참여하게 된 계기는 무엇인가요?", type: "textarea", isRequired: true, sortOrder: 3 },
+    { label: "수련회 중 제일 좋았던 프로그램은?", type: "radio", isRequired: true, sortOrder: 4, options: JSON.stringify(["아이스브레이크(금 오전)", "코너학습(금 오후)", "레크레이션(토 오전)", "카드만들기(토 오후)"]) },
+    { label: "좋았던 이유는?", type: "textarea", isRequired: true, sortOrder: 5 },
+    { label: "수련회 중 아쉬웠던 프로그램은?", type: "radio", isRequired: true, sortOrder: 6, options: JSON.stringify(["아이스브레이크(금 오전)", "코너학습(금 오후)", "레크레이션(토 오전)", "카드만들기(토 오후)"]) },
+    { label: "아쉬웠던 이유는?", type: "textarea", isRequired: true, sortOrder: 7 },
+    { label: "26년도 여름 캠프를 참석하길 희망하시나요?", type: "radio", isRequired: true, sortOrder: 8, options: JSON.stringify(["예", "아니오"]) },
+    { label: "선택한 이유는 무엇인가요?", type: "textarea", isRequired: true, sortOrder: 9 },
+    { label: "하고 싶은 말", type: "textarea", isRequired: false, sortOrder: 10 },
+  ];
+
+  for (const q of surveyQuestions) {
+    const questionId = `winter-camp-q-${q.sortOrder}`;
+    await prisma.surveyQuestion.upsert({
+      where: { id: questionId },
+      update: {
+        label: q.label,
+        type: q.type,
+        isRequired: q.isRequired,
+        sortOrder: q.sortOrder,
+        options: (q as { options?: string }).options || null,
+      },
+      create: {
+        id: questionId,
+        surveyId: survey.id,
+        label: q.label,
+        type: q.type,
+        isRequired: q.isRequired,
+        sortOrder: q.sortOrder,
+        options: (q as { options?: string }).options || null,
+      },
+    });
+  }
+
+  console.log("겨울캠프 설문조사가 생성되었습니다.");
+  console.log(`설문 링크: /survey/${survey.id}`);
+
   console.log("샘플 데이터가 생성되었습니다.");
   console.log("갤러리 카테고리 4개 + 더미 이미지 20개가 생성되었습니다.");
   console.log("사이트 기본 설정이 완료되었습니다.");
