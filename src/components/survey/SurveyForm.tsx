@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 
 type SurveyQuestion = {
   id: string;
@@ -60,6 +60,7 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const questionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const snowflakes = useMemo(() => generateSnowflakes(18), []);
   const stars = useMemo(() => generateStars(30), []);
@@ -78,12 +79,34 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
+    let firstErrorId: string | null = null;
     for (const q of survey.questions) {
       if (q.isRequired && (!answers[q.id] || answers[q.id].trim() === "")) {
         newErrors[q.id] = "필수 항목입니다";
+        if (!firstErrorId) firstErrorId = q.id;
       }
     }
     setErrors(newErrors);
+
+    if (firstErrorId) {
+      const errorCount = Object.keys(newErrors).length;
+      const firstErrorQuestion = survey.questions.find((q) => q.id === firstErrorId);
+      alert(`입력하지 않은 항목이 ${errorCount}개 있습니다.\n\n→ "${firstErrorQuestion?.label}"`);
+
+      // 해당 질문으로 스크롤 + 포커스
+      const el = questionRefs.current[firstErrorId];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        // 스크롤 완료 후 입력 필드에 포커스
+        setTimeout(() => {
+          const input = el.querySelector<HTMLElement>("input:not([type=radio]), textarea");
+          if (input) {
+            input.focus();
+          }
+        }, 500);
+      }
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -218,7 +241,10 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
           {survey.questions.map((question, idx) => (
             <div
               key={question.id}
-              className="bg-white/[0.07] backdrop-blur-sm border border-white/10 p-5 sm:p-6"
+              ref={(el) => { questionRefs.current[question.id] = el; }}
+              className={`bg-white/[0.07] backdrop-blur-sm border p-5 sm:p-6 transition-colors ${
+                errors[question.id] ? "border-[#ff6b9d]/60" : "border-white/10"
+              }`}
               style={{ boxShadow: "4px 4px 0px rgba(0,0,0,0.4)" }}
             >
               {/* 질문 라벨 */}
