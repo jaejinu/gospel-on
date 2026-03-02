@@ -25,10 +25,11 @@ export function generateCSV(
  * CSV 다운로드용 Response 생성
  */
 export function csvResponse(csv: string, filename: string): Response {
+  const encoded = encodeURIComponent(filename);
   return new Response(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}"`,
+      "Content-Disposition": `attachment; filename="${encoded}"; filename*=UTF-8''${encoded}`,
     },
   });
 }

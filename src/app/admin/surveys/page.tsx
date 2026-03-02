@@ -135,9 +135,19 @@ export default function AdminSurveysPage() {
 
   const handleExportCSV = async (surveyId: string) => {
     try {
-      const res = await fetch(`/api/surveys/admin/${surveyId}?export=csv`);
+      const res = await fetch(`/api/surveys/admin/${surveyId}?export=csv`, {
+        credentials: "include",
+      });
       if (!res.ok) {
-        toast("CSV 내보내기에 실패했습니다.", "error");
+        const text = await res.text();
+        let errorMsg = "CSV 내보내기에 실패했습니다.";
+        try {
+          const json = JSON.parse(text);
+          errorMsg = json.error || errorMsg;
+        } catch {
+          // JSON 파싱 실패 시 기본 메시지 사용
+        }
+        toast(errorMsg, "error");
         return;
       }
       const blob = await res.blob();
@@ -146,13 +156,14 @@ export default function AdminSurveysPage() {
       a.href = url;
       const disposition = res.headers.get("Content-Disposition");
       const filename = disposition?.match(/filename="(.+)"/)?.[1] || "survey.csv";
-      a.download = filename;
+      a.download = decodeURIComponent(filename);
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       toast("CSV 파일이 다운로드되었습니다.", "success");
-    } catch {
+    } catch (err) {
+      console.error("CSV 내보내기 오류:", err);
       toast("CSV 내보내기에 실패했습니다.", "error");
     }
   };
