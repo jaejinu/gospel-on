@@ -133,8 +133,28 @@ export default function AdminSurveysPage() {
     }
   };
 
-  const handleExportCSV = (surveyId: string) => {
-    window.open(`/api/surveys/admin/${surveyId}?export=csv`, "_blank");
+  const handleExportCSV = async (surveyId: string) => {
+    try {
+      const res = await fetch(`/api/surveys/admin/${surveyId}?export=csv`);
+      if (!res.ok) {
+        toast("CSV 내보내기에 실패했습니다.", "error");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const disposition = res.headers.get("Content-Disposition");
+      const filename = disposition?.match(/filename="(.+)"/)?.[1] || "survey.csv";
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast("CSV 파일이 다운로드되었습니다.", "success");
+    } catch {
+      toast("CSV 내보내기에 실패했습니다.", "error");
+    }
   };
 
   const handleCopyLink = (surveyId: string) => {
