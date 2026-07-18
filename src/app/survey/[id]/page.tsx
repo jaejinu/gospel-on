@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import SurveyForm from "@/components/survey/SurveyForm";
+import { getSurveyTheme } from "@/components/survey/theme";
 
 export const dynamic = "force-dynamic";
 
@@ -43,12 +44,13 @@ export default async function SurveyPage({
   }
 
   if (survey.status !== "active") {
+    const theme = getSurveyTheme(survey);
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0a0e27] via-[#1a1f4e] to-[#0d1235] text-[#e8f0fe]">
+      <div className={`min-h-screen flex items-center justify-center ${theme.pageBg} ${theme.closedText}`}>
         <div className="text-center">
-          <p className="text-6xl mb-4">❄️</p>
+          <p className="text-6xl mb-4">{theme.headerEmoji}</p>
           <h1 className="text-2xl font-bold mb-2">설문이 종료되었습니다</h1>
-          <p className="text-[#e8f0fe]/60">참여해주셔서 감사합니다!</p>
+          <p className="opacity-60">참여해주셔서 감사합니다!</p>
         </div>
       </div>
     );

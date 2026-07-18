@@ -151,7 +151,13 @@ src/
 5. 피드백 (ScheduleFeedbackTab)
 
 ### 설문조사 기능
-- 공개 페이지: `/survey/[id]` — 다크 테마 (`bg-[#0a0e27]`) 전용 레이아웃, 눈꽃/별 애니메이션 배경
+- 공개 페이지: `/survey/[id]` — 시즌 테마 적용 (아래 참고)
+- 시즌 테마: `components/survey/theme.ts` — 설문 id에 "summer" 포함 또는 제목에 "여름" 포함 시 여름 테마, 그 외 겨울 테마
+  - 겨울: 밤하늘 남색 그라데이션 + 눈꽃/별 애니메이션
+  - 여름: 하늘/바다 그라데이션 + 물방울(`survey-bubble`)/반짝임(`survey-sparkle`) 애니메이션
+  - 테마 클래스는 Tailwind JIT 인식을 위해 반드시 리터럴 문자열로 유지
+- 설문 시드: 전용 스크립트 사용 (예: `prisma/seed-summer-survey.ts`, 실행: `npx tsx prisma/seed-summer-survey.ts`)
+  - **운영 DB에서 전체 `seed.ts` 재실행 금지** — 관리자 비밀번호(`gospel123`)와 사이트 설정을 초기값으로 덮어씀
 - 질문 타입: `text`, `textarea`, `radio` (radio 선택지는 `options`에 JSON 배열로 저장)
 - 응답 제출: `POST /api/surveys/[id]/responses` — `status === "active"`인 설문만 허용, 필수 항목 서버 검증
 - 클라이언트 검증: 누락 항목 alert + 해당 질문으로 자동 스크롤/포커스

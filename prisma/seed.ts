@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
+import { seedSummerSurvey } from "./seed-summer-survey";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -199,6 +200,9 @@ async function main() {
 
   console.log("겨울캠프 설문조사가 생성되었습니다.");
   console.log(`설문 링크: /survey/${survey.id}`);
+
+  // 여름수련회 설문조사
+  await seedSummerSurvey(prisma);
 
   console.log("샘플 데이터가 생성되었습니다.");
   console.log("갤러리 카테고리 4개 + 더미 이미지 20개가 생성되었습니다.");
