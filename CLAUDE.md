@@ -28,9 +28,11 @@ src/
 │   │   ├── donations/             # 후원 관리 + report/ 연간 리포트
 │   │   ├── gallery/               # 갤러리 관리
 │   │   ├── notices/               # 공지사항 관리
+│   │   ├── surveys/               # 설문 관리 (응답 조회 + CSV 내보내기)
 │   │   ├── audit-logs/            # 활동 로그
 │   │   ├── settings/              # 사이트 설정
 │   │   └── login/                 # 로그인
+│   ├── survey/[id]/           # 공개 설문 페이지 (다크 테마 전용 레이아웃)
 │   ├── teacher/[token]/       # 교사용 페이지 (토큰 인증, 모바일 카드뷰)
 │   ├── api/                   # API 라우트
 │   ├── not-found.tsx          # 커스텀 404 페이지
@@ -53,6 +55,7 @@ src/
 │   │   └── AdminSidebar.tsx       # 활성 인디케이터 (border-l-3)
 │   ├── gallery/               # 갤러리 (GalleryGrid + 슬라이드쇼)
 │   ├── schedule/              # 일정 상세 (ScheduleDetail)
+│   ├── survey/                # 설문 폼 (SurveyForm 클라이언트 컴포넌트)
 │   └── admin/schedule/        # 일정 탭 컴포넌트 5개
 ├── lib/                       # 유틸리티 및 설정
 │   ├── prisma.ts                  # Prisma 클라이언트 (PrismaPg 어댑터)
@@ -82,6 +85,7 @@ src/
 - **AuditLog** - 활동 로그
 - **StatusHistory** - 상태 변경 이력 타임라인
 - **TeacherToken** - 교사 접근 토큰 (만료일 기반)
+- **Survey / SurveyQuestion / SurveyResponse / SurveyAnswer** - 설문 (status: draft/active/closed, 질문 type: text/textarea/radio)
 - **Notification** - 알림 로그
 
 ## 개발 명령어
@@ -145,6 +149,17 @@ src/
 3. 참가자 관리 (ScheduleParticipantsTab)
 4. 조 편성 (ScheduleTeamsTab)
 5. 피드백 (ScheduleFeedbackTab)
+
+### 설문조사 기능
+- 공개 페이지: `/survey/[id]` — 다크 테마 (`bg-[#0a0e27]`) 전용 레이아웃, 눈꽃/별 애니메이션 배경
+- 질문 타입: `text`, `textarea`, `radio` (radio 선택지는 `options`에 JSON 배열로 저장)
+- 응답 제출: `POST /api/surveys/[id]/responses` — `status === "active"`인 설문만 허용, 필수 항목 서버 검증
+- 클라이언트 검증: 누락 항목 alert + 해당 질문으로 자동 스크롤/포커스
+- 관리자: `/admin/surveys` — 설문 목록(`_count`로 응답/질문 수 표시) + 응답 상세 조회
+- CSV 내보내기: `GET /api/surveys/admin/[id]?export=csv`
+  - 클라이언트에서 `fetch`(credentials 포함) + blob 다운로드 방식 (단순 `<a href>` 사용 금지 — 인증 쿠키 문제)
+  - 파일명은 `Content-Disposition` 헤더에서 추출 (한글 파일명 인코딩 처리)
+  - `lib/csv.ts`의 `generateCSV()`, `csvResponse()` 헬퍼 사용
 
 ### Header 네비게이션
 - 데스크톱: 6개 메뉴 (홈, 복음온이란, 갤러리, 아카이브, 공지사항, 수련회▾)
