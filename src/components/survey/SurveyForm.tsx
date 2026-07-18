@@ -305,9 +305,9 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
               key={question.id}
               ref={(el) => { questionRefs.current[question.id] = el; }}
               className={`${theme.cardBase} p-5 sm:p-6 transition-colors ${
-                errors[question.id] ? theme.cardErrorBorder : "border-white/10"
+                errors[question.id] ? theme.cardErrorBorder : theme.cardBorder
               }`}
-              style={{ boxShadow: "4px 4px 0px rgba(0,0,0,0.4)" }}
+              style={{ boxShadow: theme.cardShadow }}
             >
               {/* 질문 라벨 */}
               <label className={`block ${theme.labelText} text-sm sm:text-base font-medium mb-3`}>
@@ -394,9 +394,7 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
               disabled={isSubmitting}
               className={`w-full ${theme.submitBtn} font-bold py-4 text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
               style={{
-                boxShadow: isSubmitting
-                  ? "none"
-                  : "4px 4px 0px rgba(0,0,0,0.5)",
+                boxShadow: isSubmitting ? "none" : theme.submitShadow,
               }}
             >
               {isSubmitting ? "제출 중..." : theme.submitLabel}
