@@ -193,6 +193,7 @@ src/
 - **데이터 영속화 (named volume, 재배포에도 유지됨)**:
   - DB: `pgdata` → `/var/lib/postgresql/data`
   - 업로드 이미지: `uploads` → `/app/public/uploads` (업로드 API가 로컬 파일시스템에 저장하므로 필수)
+- 업로드 파일 서빙: `src/app/uploads/[...path]/route.ts` — standalone 서버는 시작 시점의 public/ 스냅샷만 정적 서빙하므로, 런타임 업로드 파일은 이 라우트가 서빙 (삭제 금지)
   - `docker compose down -v` 절대 금지 — 볼륨(DB + 이미지) 삭제됨
 - 자동 배포: `.github/workflows/deploy.yml` — main 푸시 시 SSH로 서버 접속 → git pull → rebuild
   - 필요 GitHub Secrets: `LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY`, `LIGHTSAIL_APP_DIR`
