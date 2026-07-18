@@ -22,6 +22,9 @@ export type SurveyTheme = {
   radioBoxSelected: string;
   radioBoxUnselected: string;
   radioDot: string;
+  checkboxBoxSelected: string;
+  checkboxBoxUnselected: string;
+  checkboxCheck: string;
   errorText: string;
   submitBtn: string;
   submitShadow: string;
@@ -58,6 +61,9 @@ export const SURVEY_THEMES: Record<"winter" | "summer", SurveyTheme> = {
     radioBoxSelected: "border-[#ffd700] bg-[#ffd700]",
     radioBoxUnselected: "border-white/30",
     radioDot: "bg-[#0a0e27]",
+    checkboxBoxSelected: "border-[#ffd700] bg-[#ffd700]",
+    checkboxBoxUnselected: "border-white/30",
+    checkboxCheck: "text-[#0a0e27]",
     errorText: "text-[#ff6b9d]",
     submitBtn:
       "bg-[#ffd700] text-[#0a0e27] hover:bg-[#ffe44d] active:translate-y-[2px]",
@@ -95,6 +101,9 @@ export const SURVEY_THEMES: Record<"winter" | "summer", SurveyTheme> = {
     radioBoxSelected: "border-[#0ea5e9] bg-[#0ea5e9] rounded-full",
     radioBoxUnselected: "border-[#94a3b8] rounded-full",
     radioDot: "bg-white rounded-full",
+    checkboxBoxSelected: "border-[#0ea5e9] bg-[#0ea5e9] rounded",
+    checkboxBoxUnselected: "border-[#94a3b8] rounded",
+    checkboxCheck: "text-white",
     errorText: "text-[#e11d48]",
     submitBtn:
       "bg-gradient-to-r from-[#fde047] to-[#fbbf24] text-[#0c4a6e] rounded-2xl hover:brightness-105 hover:-translate-y-0.5 active:translate-y-0",

@@ -158,7 +158,7 @@ src/
   - 테마 클래스는 Tailwind JIT 인식을 위해 반드시 리터럴 문자열로 유지
 - 설문 시드: 전용 스크립트 사용 (예: `prisma/seed-summer-survey.ts`, 실행: `npx tsx prisma/seed-summer-survey.ts`)
   - **운영 DB에서 전체 `seed.ts` 재실행 금지** — 관리자 비밀번호(`gospel123`)와 사이트 설정을 초기값으로 덮어씀
-- 질문 타입: `text`, `textarea`, `radio` (radio 선택지는 `options`에 JSON 배열로 저장)
+- 질문 타입: `text`, `textarea`, `radio`, `checkbox`(중복선택, 답변은 ", " 조인 문자열), `date` (radio/checkbox 선택지는 `options`에 JSON 배열로 저장)
 - 응답 제출: `POST /api/surveys/[id]/responses` — `status === "active"`인 설문만 허용, 필수 항목 서버 검증
 - 클라이언트 검증: 누락 항목 alert + 해당 질문으로 자동 스크롤/포커스
 - 관리자: `/admin/surveys` — 설문 목록(`_count`로 응답/질문 수 표시) + 응답 상세 조회

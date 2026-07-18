@@ -97,6 +97,15 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
     [theme.celebrationColors]
   );
 
+  // 중복선택: 선택 항목들을 ", "로 이어 하나의 문자열로 저장
+  const toggleCheckbox = (questionId: string, option: string) => {
+    const current = (answers[questionId] || "").split(", ").filter(Boolean);
+    const next = current.includes(option)
+      ? current.filter((o) => o !== option)
+      : [...current, option];
+    handleChange(questionId, next.join(", "));
+  };
+
   const handleChange = (questionId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
     if (errors[questionId]) {
@@ -359,6 +368,55 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
                   placeholder={question.placeholder || ""}
                   className={`w-full ${theme.input} px-4 py-3 text-sm transition-colors`}
                 />
+              )}
+
+              {question.type === "date" && (
+                <input
+                  type="date"
+                  value={answers[question.id] || ""}
+                  onChange={(e) => handleChange(question.id, e.target.value)}
+                  className={`w-full ${theme.input} px-4 py-3 text-sm transition-colors`}
+                />
+              )}
+
+              {question.type === "checkbox" && question.options && (
+                <div className="space-y-2">
+                  {(JSON.parse(question.options) as string[]).map((option) => {
+                    const isChecked = (answers[question.id] || "")
+                      .split(", ")
+                      .filter(Boolean)
+                      .includes(option);
+                    return (
+                      <label
+                        key={option}
+                        className={`flex items-center gap-3 cursor-pointer px-4 py-3 border transition-colors ${
+                          isChecked ? theme.radioSelected : theme.radioUnselected
+                        }`}
+                      >
+                        <div
+                          className={`w-4 h-4 border-2 flex items-center justify-center shrink-0 ${
+                            isChecked
+                              ? theme.checkboxBoxSelected
+                              : theme.checkboxBoxUnselected
+                          }`}
+                        >
+                          {isChecked && (
+                            <span className={`${theme.checkboxCheck} text-[10px] font-bold leading-none`}>
+                              ✓
+                            </span>
+                          )}
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleCheckbox(question.id, option)}
+                          className="sr-only"
+                        />
+                        <span className="text-sm">{option}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               )}
 
               {question.type === "textarea" && (
