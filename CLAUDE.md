@@ -187,3 +187,13 @@ src/
 - `.env` - 공통 환경변수
 - `.env.example` - 템플릿
 - 필수: `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
+
+## 배포 (Lightsail Ubuntu + Docker)
+- `docker compose up -d --build` — 앱 + PostgreSQL + 마이그레이션(prisma db push) 일괄 실행
+- **데이터 영속화 (named volume, 재배포에도 유지됨)**:
+  - DB: `pgdata` → `/var/lib/postgresql/data`
+  - 업로드 이미지: `uploads` → `/app/public/uploads` (업로드 API가 로컬 파일시스템에 저장하므로 필수)
+  - `docker compose down -v` 절대 금지 — 볼륨(DB + 이미지) 삭제됨
+- 자동 배포: `.github/workflows/deploy.yml` — main 푸시 시 SSH로 서버 접속 → git pull → rebuild
+  - 필요 GitHub Secrets: `LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY`, `LIGHTSAIL_APP_DIR`
+- 파괴적 스키마 변경(컬럼/테이블 삭제) 시 `prisma db push`가 비대화형 모드에서 실패하여 배포가 중단됨 — 의도된 안전장치
