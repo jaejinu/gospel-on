@@ -201,6 +201,10 @@ src/
   - 업로드 이미지: `uploads` → `/app/public/uploads` (업로드 API가 로컬 파일시스템에 저장하므로 필수)
 - 업로드 파일 서빙: `src/app/uploads/[...path]/route.ts` — standalone 서버는 시작 시점의 public/ 스냅샷만 정적 서빙하므로, 런타임 업로드 파일은 이 라우트가 서빙 (삭제 금지)
   - `docker compose down -v` 절대 금지 — 볼륨(DB + 이미지) 삭제됨
-- 자동 배포: `.github/workflows/deploy.yml` — main 푸시 시 SSH로 서버 접속 → git pull → rebuild
+- 자동 배포: `.github/workflows/deploy.yml` — main 푸시 시 2단계
+  1. GitHub Actions에서 이미지 빌드 → GHCR push (`ghcr.io/jaejinu/gospel-on`, `-migrate`)
+  2. SSH로 서버 접속 → `docker compose pull` → `up -d --no-build` (서버는 빌드하지 않음 — 저사양 인스턴스에서 빌드 시 시스템 다운됨)
   - 필요 GitHub Secrets: `LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY`, `LIGHTSAIL_APP_DIR`
+  - GHCR 인증은 워크플로의 `GITHUB_TOKEN`으로 배포 시마다 서버에서 docker login (별도 PAT 불필요)
+  - 로컬 개발은 기존대로 `docker compose up -d --build` (image + build 병기)
 - 파괴적 스키마 변경(컬럼/테이블 삭제) 시 `prisma db push`가 비대화형 모드에서 실패하여 배포가 중단됨 — 의도된 안전장치

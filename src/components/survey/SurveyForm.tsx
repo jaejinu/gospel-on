@@ -276,6 +276,36 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
         />
       ))}
 
+      {/* 태양 글로우 + 파도 (여름) */}
+      {!isWinter && (
+        <>
+          <div
+            aria-hidden
+            className="pointer-events-none fixed -top-24 -right-16 w-96 h-96 rounded-full bg-[#fde047]/40 blur-3xl"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none fixed -top-10 right-10 w-40 h-40 rounded-full bg-white/30 blur-2xl"
+          />
+          <div aria-hidden className="pointer-events-none fixed bottom-0 left-0 right-0 z-[1]">
+            <svg
+              viewBox="0 0 1440 120"
+              preserveAspectRatio="none"
+              className="w-full h-16 sm:h-20"
+            >
+              <path
+                d="M0,72 C240,104 480,40 720,56 C960,72 1200,104 1440,72 L1440,120 L0,120 Z"
+                fill="rgba(255,255,255,0.12)"
+              />
+              <path
+                d="M0,92 C280,64 560,110 840,92 C1080,78 1280,96 1440,86 L1440,120 L0,120 Z"
+                fill="rgba(255,255,255,0.18)"
+              />
+            </svg>
+          </div>
+        </>
+      )}
+
       <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12">
         {/* 타이틀 */}
         <div className="text-center mb-8">
