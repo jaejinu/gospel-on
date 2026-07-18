@@ -7,7 +7,16 @@ import { PrismaPg } from "@prisma/adapter-pg";
 // (seed.ts는 관리자 비밀번호/사이트 설정을 초기값으로 덮어씀).
 // 실행: npx tsx prisma/seed-summer-survey.ts
 
-const FEEDBACK_PARTS = ["찬양", "말씀", "식사", "기타"];
+const FEEDBACK_PARTS = [
+  "저희 조를 소개합니다",
+  "아브라함의 생애",
+  "열매 ON",
+  "믿음 ON",
+  "찬양",
+  "말씀",
+  "식사",
+  "기타",
+];
 
 export async function seedSummerSurvey(prisma: PrismaClient) {
   const survey = await prisma.survey.upsert({

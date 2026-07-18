@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef } from "react";
+import { motion } from "framer-motion";
 import { getSurveyTheme } from "./theme";
 
 type SurveyQuestion = {
@@ -317,7 +318,12 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
 
       <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12">
         {/* 타이틀 */}
-        <div className="text-center mb-8">
+        <motion.div
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <div
             className="text-4xl mb-3"
             style={{ animation: "pixel-float 3s ease-in-out infinite" }}
@@ -335,14 +341,18 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
               {survey.description}
             </p>
           )}
-        </div>
+        </motion.div>
 
         {/* 설문 폼 */}
         <form onSubmit={handleSubmit} className="space-y-5">
           {survey.questions.map((question, idx) => (
-            <div
+            <motion.div
               key={question.id}
               ref={(el) => { questionRefs.current[question.id] = el; }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
               className={`${theme.cardBase} p-5 sm:p-6 transition-colors ${
                 errors[question.id] ? theme.cardErrorBorder : theme.cardBorder
               }`}
@@ -387,8 +397,9 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
                       .filter(Boolean)
                       .includes(option);
                     return (
-                      <label
+                      <motion.label
                         key={option}
+                        whileTap={{ scale: 0.97 }}
                         className={`flex items-center gap-3 cursor-pointer px-4 py-3 border transition-colors ${
                           isChecked ? theme.radioSelected : theme.radioUnselected
                         }`}
@@ -401,9 +412,14 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
                           }`}
                         >
                           {isChecked && (
-                            <span className={`${theme.checkboxCheck} text-[10px] font-bold leading-none`}>
+                            <motion.span
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 500, damping: 22 }}
+                              className={`${theme.checkboxCheck} text-[10px] font-bold leading-none`}
+                            >
                               ✓
-                            </span>
+                            </motion.span>
                           )}
                         </div>
                         <input
@@ -413,7 +429,7 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
                           className="sr-only"
                         />
                         <span className="text-sm">{option}</span>
-                      </label>
+                      </motion.label>
                     );
                   })}
                 </div>
@@ -432,8 +448,9 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
               {question.type === "radio" && question.options && (
                 <div className="space-y-2">
                   {(JSON.parse(question.options) as string[]).map((option) => (
-                    <label
+                    <motion.label
                       key={option}
+                      whileTap={{ scale: 0.97 }}
                       className={`flex items-center gap-3 cursor-pointer px-4 py-3 border transition-colors ${
                         answers[question.id] === option
                           ? theme.radioSelected
@@ -449,7 +466,12 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
                         }`}
                       >
                         {answers[question.id] === option && (
-                          <div className={`w-2 h-2 ${theme.radioDot}`} />
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 22 }}
+                            className={`w-2 h-2 ${theme.radioDot}`}
+                          />
                         )}
                       </div>
                       <input
@@ -461,7 +483,7 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
                         className="sr-only"
                       />
                       <span className="text-sm">{option}</span>
-                    </label>
+                    </motion.label>
                   ))}
                 </div>
               )}
@@ -472,21 +494,22 @@ export default function SurveyForm({ survey }: { survey: Survey }) {
                   ⚠ {errors[question.id]}
                 </p>
               )}
-            </div>
+            </motion.div>
           ))}
 
           {/* 제출 버튼 */}
           <div className="pt-4 pb-8">
-            <button
+            <motion.button
               type="submit"
               disabled={isSubmitting}
+              whileTap={{ scale: 0.98 }}
               className={`w-full ${theme.submitBtn} font-bold py-4 text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
               style={{
                 boxShadow: isSubmitting ? "none" : theme.submitShadow,
               }}
             >
               {isSubmitting ? "제출 중..." : theme.submitLabel}
-            </button>
+            </motion.button>
           </div>
         </form>
       </div>
